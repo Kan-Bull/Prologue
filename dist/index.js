@@ -71,14 +71,31 @@ function run(cmd, cwd) {
 // ──────────────────────────────────────────────
 //  Main
 // ──────────────────────────────────────────────
+function printUsage() {
+    console.log();
+    console.log(kleur_1.default.bold().cyan("  ⚡ othello"), kleur_1.default.dim("— Playwright testing toolkit"));
+    console.log();
+    console.log(kleur_1.default.bold("  Commands:\n"));
+    console.log("    othello create               Scaffold a new Playwright project");
+    console.log("    othello scan <url>           Analyze a page and generate a Page Object");
+    console.log();
+    console.log(kleur_1.default.bold("  Options:\n"));
+    console.log("    scan --test-id-attr <attr>   Custom test ID attribute (default: data-testid)");
+    console.log();
+    console.log(kleur_1.default.bold("  Examples:\n"));
+    console.log(kleur_1.default.dim("    npx othello create"));
+    console.log(kleur_1.default.dim("    npx othello scan https://myapp.com/login"));
+    console.log(kleur_1.default.dim("    npx othello scan https://myapp.com/login --test-id-attr data-cy"));
+    console.log();
+}
 async function main() {
     const args = process.argv.slice(2);
     // ── Subcommand: scan ──
     if (args[0] === "scan") {
         const url = args[1];
         if (!url) {
-            console.log(kleur_1.default.red("\n  Usage: create-prologue scan <url>"));
-            console.log(kleur_1.default.dim("  Example: create-prologue scan https://example.com/contact\n"));
+            console.log(kleur_1.default.red("\n  Usage: othello scan <url>"));
+            console.log(kleur_1.default.dim("  Example: othello scan https://example.com/contact\n"));
             process.exit(1);
         }
         const testIdAttr = args.includes("--test-id-attr")
@@ -87,9 +104,23 @@ async function main() {
         await (0, scanner_1.scan)(url, testIdAttr);
         return;
     }
-    // ── Default: scaffold ──
+    // ── Subcommand: create ──
+    if (args[0] === "create" || args.length === 0) {
+        if (args[0] !== "create" && args.length === 0) {
+            // No args at all — show help
+            printUsage();
+            return;
+        }
+    }
+    else {
+        // Unknown subcommand
+        console.log(kleur_1.default.red(`\n  Unknown command: ${args[0]}`));
+        printUsage();
+        process.exit(1);
+    }
+    // ── Scaffold ──
     console.log();
-    console.log(kleur_1.default.bold().cyan("  ⚡ create-prologue"), kleur_1.default.dim("— scaffold a production-grade Playwright project"));
+    console.log(kleur_1.default.bold().cyan("  ⚡ othello create"), kleur_1.default.dim("— scaffold a production-grade Playwright project"));
     console.log();
     const response = await (0, prompts_1.default)([
         {
@@ -274,7 +305,7 @@ async function main() {
     const s6 = spinner("Creating initial commit...");
     try {
         run("git add -A", targetDir);
-        run('git commit -m "Initial scaffold via create-prologue"', targetDir);
+        run('git commit -m "Initial scaffold via othello"', targetDir);
         s6.stop(kleur_1.default.green("✓ Initial commit created"));
     }
     catch {

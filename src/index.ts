@@ -52,6 +52,24 @@ function run(cmd: string, cwd: string): void {
 //  Main
 // ──────────────────────────────────────────────
 
+function printUsage(): void {
+  console.log();
+  console.log(kleur.bold().cyan("  ⚡ othello"), kleur.dim("— Playwright testing toolkit"));
+  console.log();
+  console.log(kleur.bold("  Commands:\n"));
+  console.log("    othello create               Scaffold a new Playwright project");
+  console.log("    othello scan <url>           Analyze a page and generate a Page Object");
+  console.log();
+  console.log(kleur.bold("  Options:\n"));
+  console.log("    scan --test-id-attr <attr>   Custom test ID attribute (default: data-testid)");
+  console.log();
+  console.log(kleur.bold("  Examples:\n"));
+  console.log(kleur.dim("    npx othello create"));
+  console.log(kleur.dim("    npx othello scan https://myapp.com/login"));
+  console.log(kleur.dim("    npx othello scan https://myapp.com/login --test-id-attr data-cy"));
+  console.log();
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
 
@@ -59,8 +77,8 @@ async function main(): Promise<void> {
   if (args[0] === "scan") {
     const url = args[1];
     if (!url) {
-      console.log(kleur.red("\n  Usage: create-prologue scan <url>"));
-      console.log(kleur.dim("  Example: create-prologue scan https://example.com/contact\n"));
+      console.log(kleur.red("\n  Usage: othello scan <url>"));
+      console.log(kleur.dim("  Example: othello scan https://example.com/contact\n"));
       process.exit(1);
     }
     const testIdAttr = args.includes("--test-id-attr")
@@ -70,10 +88,24 @@ async function main(): Promise<void> {
     return;
   }
 
-  // ── Default: scaffold ──
+  // ── Subcommand: create ──
+  if (args[0] === "create" || args.length === 0) {
+    if (args[0] !== "create" && args.length === 0) {
+      // No args at all — show help
+      printUsage();
+      return;
+    }
+  } else {
+    // Unknown subcommand
+    console.log(kleur.red(`\n  Unknown command: ${args[0]}`));
+    printUsage();
+    process.exit(1);
+  }
+
+  // ── Scaffold ──
   console.log();
   console.log(
-    kleur.bold().cyan("  ⚡ create-prologue"),
+    kleur.bold().cyan("  ⚡ othello create"),
     kleur.dim("— scaffold a production-grade Playwright project"),
   );
   console.log();
@@ -283,7 +315,7 @@ async function main(): Promise<void> {
   const s6 = spinner("Creating initial commit...");
   try {
     run("git add -A", targetDir);
-    run('git commit -m "Initial scaffold via create-prologue"', targetDir);
+    run('git commit -m "Initial scaffold via othello"', targetDir);
     s6.stop(kleur.green("✓ Initial commit created"));
   } catch {
     s6.stop(kleur.yellow("⚠ Git commit skipped"));

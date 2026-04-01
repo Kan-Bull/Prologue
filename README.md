@@ -5,16 +5,15 @@
   <img src="https://img.shields.io/badge/License-MIT-green?style=for-the-badge" />
 </p>
 
-<h1 align="center">create-prologue</h1>
+<h1 align="center">othello</h1>
 
 <p align="center">
-  <strong>Scaffold a production-grade Playwright project in 30 seconds.</strong><br>
-  Page Object Model · Typed fixtures · Data builders · Visual regression · CI/CD
+  <strong>Playwright testing toolkit — scaffold projects and generate Page Objects.</strong><br>
+  Page Object Model · Typed fixtures · Data builders · Visual regression · CI/CD · Page scanner
 </p>
 
 <p align="center">
-  <em>In theater, the <strong>prologue</strong> sets the stage before the action begins.<br>
-  In testing, Prologue sets the stage before your <a href="https://playwright.dev">Playwright</a> tests take the spotlight.</em>
+  <em><strong>Othello</strong> — Shakespeare's most dramatic play, now a toolkit for <a href="https://playwright.dev">Playwright</a>'s most reliable tests.</em>
 </p>
 <br>
 
@@ -34,20 +33,20 @@ Run one command. Answer a few questions. Get a fully configured project with:
 - **Custom expect matchers** — domain-specific assertions
 - **Biome** — linting + formatting, zero config
 - **GitHub Actions** — CI/CD with matrix strategy, manual dispatch
-- **15 documentation guides** — from getting started to best practices
+- **16 documentation guides** — from getting started to best practices
 - **Working examples** — Contact page tests against [practicesoftwaretesting.com](https://practicesoftwaretesting.com)
 - **Page scanner** — analyze any live page and generate a Page Object automatically
 
 ## Quick start
 
 ```bash
-npx create-prologue
+npx othello create
 ```
 
 That's it. The CLI scaffolds the project, installs dependencies, downloads Playwright browsers, runs a lint check, and initializes git. You walk away with a ready-to-use test suite.
 
 ```
-  ⚡ create-prologue — scaffold a production-grade Playwright project
+  ⚡ othello create — scaffold a production-grade Playwright project
 
   - Project name: my-e2e-tests
   - Application base URL: https://practicesoftwaretesting.com
@@ -76,11 +75,11 @@ That's it. The CLI scaffolds the project, installs dependencies, downloads Playw
 Don't write Page Objects from scratch. Point the scanner at any page and get a ready-to-use file:
 
 ```bash
-npx create-prologue scan https://myapp.com/login
+npx othello scan https://myapp.com/login
 ```
 
 ```
-  🔍 create-prologue scan — analyze page & generate Page Object
+  🔍 othello scan — analyze page & generate Page Object
 
   ✓ Page loaded — "Login"
   ✓ Found 5 interactive elements
@@ -101,7 +100,7 @@ npx create-prologue scan https://myapp.com/login
   Stable locators: 3/5 (60%)
 ```
 
-The scanner prioritizes stable, language-independent locators (`data-testid`, `id`) over locale-dependent ones (`getByRole`, `getByLabel`). Works on any website — no Prologue project required.
+The scanner prioritizes stable, language-independent locators (`data-testid`, `id`) over locale-dependent ones (`getByRole`, `getByLabel`). Works on any website — no Othello project required.
 
 ## Built-in structured logger
 

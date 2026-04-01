@@ -9,7 +9,7 @@ Writing Page Objects from scratch means opening DevTools, inspecting every eleme
 The scanner analyzes a live page and generates a ready-to-use Page Object with the best locator for each element:
 
 ```bash
-npx create-prologue scan https://myapp.com/login
+npx othello scan https://myapp.com/login
 ```
 
 It opens the page in a headless browser, finds every interactive element, picks the most stable locator strategy, and writes a `.page.ts` file you can drop into your project.
@@ -43,7 +43,7 @@ The key principle: **code-level attributes** (`data-testid`, `id`, `name`) are a
 
 ### 3. Page Object generation
 
-The scanner generates a TypeScript file that follows the Prologue architecture:
+The scanner generates a TypeScript file that follows the Othello architecture:
 
 ```typescript
 import { BasePage } from "../core/base.page";
@@ -74,7 +74,7 @@ Variable names are always derived from code-level attributes (`data-testid`, `id
 ### Basic scan
 
 ```bash
-npx create-prologue scan https://myapp.com/contact
+npx othello scan https://myapp.com/contact
 ```
 
 ### Custom test ID attribute
@@ -82,12 +82,12 @@ npx create-prologue scan https://myapp.com/contact
 If your app uses a custom test ID attribute (e.g., `data-cy` for Cypress, `data-qa`):
 
 ```bash
-npx create-prologue scan https://myapp.com/contact --test-id-attr data-cy
+npx othello scan https://myapp.com/contact --test-id-attr data-cy
 ```
 
 ### Output location
 
-- If run inside a Prologue project (a `src/pages/` folder exists), the file is written to `src/pages/`.
+- If run inside a Othello project (a `src/pages/` folder exists), the file is written to `src/pages/`.
 - Otherwise, it's written to the current directory.
 
 ## Terminal output
@@ -95,7 +95,7 @@ npx create-prologue scan https://myapp.com/contact --test-id-attr data-cy
 The scanner shows a summary table with each element and its chosen strategy:
 
 ```
-  🔍 create-prologue scan — analyze page & generate Page Object
+  🔍 create-othello scan — analyze page & generate Page Object
 
   ✓ Page loaded — "Contact Us"
   ✓ Found 16 interactive elements
@@ -130,4 +130,4 @@ Strategies are color-coded:
 
 ## Works standalone
 
-The scanner doesn't require a Prologue project. You can run it against any website to quickly get a list of interactive elements and their best locators — useful for auditing test coverage or planning Page Object structure.
+The scanner doesn't require a Othello project. You can run it against any website to quickly get a list of interactive elements and their best locators — useful for auditing test coverage or planning Page Object structure.

@@ -1,9 +1,9 @@
 {
-  "name": "create-prologue",
-  "version": "1.2.2",
+  "name": "othello",
+  "version": "2.1.0",
   "description": "Scaffold a production-grade Playwright + TypeScript project with Page Object Model architecture",
   "bin": {
-    "create-prologue": "./dist/index.js"
+    "othello": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",

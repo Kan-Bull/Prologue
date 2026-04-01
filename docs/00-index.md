@@ -1,4 +1,4 @@
-# Prologue — Documentation
+# Othello — Documentation
 
 > [!tip] The Golden Rule
 > **Tests never contain selectors.** They read like specifications.
@@ -41,5 +41,6 @@
 | 12 | best-practices | Golden rules, tagging, naming conventions, common mistakes |
 | 13 | logger | Structured logger: levels, customization, adding your own levels |
 | 14 | scanner | Page scanner: analyze a live page and generate a Page Object automatically |
+| 15 | writing-your-first-test | End-to-end walkthrough: from DevTools to a running test in 5 steps |
 
 

@@ -54,7 +54,7 @@ function printResultsTable(locators: RankedLocator[]): void {
 export async function scan(url: string, testIdAttr: string): Promise<void> {
   console.log();
   console.log(
-    kleur.bold().cyan("  🔍 create-prologue scan"),
+    kleur.bold().cyan("  🔍 othello scan"),
     kleur.dim("— analyze page & generate Page Object"),
   );
   console.log();

@@ -81,7 +81,7 @@ function printResultsTable(locators) {
 }
 async function scan(url, testIdAttr) {
     console.log();
-    console.log(kleur_1.default.bold().cyan("  🔍 create-prologue scan"), kleur_1.default.dim("— analyze page & generate Page Object"));
+    console.log(kleur_1.default.bold().cyan("  🔍 othello scan"), kleur_1.default.dim("— analyze page & generate Page Object"));
     console.log();
     // Validate URL
     let parsedUrl;
