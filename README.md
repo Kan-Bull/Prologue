@@ -11,6 +11,11 @@
   <strong>Scaffold a production-grade Playwright project in 30 seconds.</strong><br>
   Page Object Model · Typed fixtures · Data builders · Visual regression · CI/CD
 </p>
+
+<p align="center">
+  <em>In theater, the <strong>prologue</strong> sets the stage before the action begins.<br>
+  In testing, Prologue sets the stage before your <a href="https://playwright.dev">Playwright</a> tests take the spotlight.</em>
+</p>
 <br>
 
 ## What you get
