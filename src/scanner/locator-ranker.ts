@@ -70,13 +70,14 @@ function toVariableName(raw: string): string {
 }
 
 function suggestVariableName(el: ElementInfo): string {
+  // Prefer code-level attributes (always English) over visible text (can be localized)
   const source =
-    el.associatedLabel ||
-    el.ariaLabel ||
-    el.placeholder ||
     el.testId ||
     el.id ||
     el.name ||
+    el.ariaLabel ||
+    el.associatedLabel ||
+    el.placeholder ||
     el.visibleText ||
     el.tagName;
 
@@ -107,41 +108,41 @@ export function rankLocator(el: ElementInfo): RankedLocator {
   const role = getImplicitRole(el);
   const accessibleName = getAccessibleName(el);
 
-  // Strategy 1: getByRole with name (★★★★★)
+  // Strategy 1: getByTestId — stable, language-independent, explicitly for testing
+  if (el.testId) {
+    return {
+      element: el,
+      strategy: "getByTestId",
+      code: `this.page.getByTestId("${escapeStr(el.testId)}")`,
+      score: 5,
+      variableName: suggestVariableName(el),
+    };
+  }
+
+  // Strategy 2: getByRole with name
   if (role && accessibleName) {
     const nameOpt = `{ name: "${escapeStr(accessibleName)}" }`;
     return {
       element: el,
       strategy: "getByRole",
       code: `this.page.getByRole("${role}", ${nameOpt})`,
-      score: 5,
-      variableName: suggestVariableName(el),
-    };
-  }
-
-  // Strategy 2: getByLabel (★★★★★)
-  if (el.associatedLabel) {
-    return {
-      element: el,
-      strategy: "getByLabel",
-      code: `this.page.getByLabel("${escapeStr(el.associatedLabel)}")`,
-      score: 5,
-      variableName: suggestVariableName(el),
-    };
-  }
-
-  // Strategy 3: getByTestId (★★★★☆)
-  if (el.testId) {
-    return {
-      element: el,
-      strategy: "getByTestId",
-      code: `this.page.getByTestId("${escapeStr(el.testId)}")`,
       score: 4,
       variableName: suggestVariableName(el),
     };
   }
 
-  // Strategy 4: getByPlaceholder (★★★☆☆)
+  // Strategy 3: getByLabel
+  if (el.associatedLabel) {
+    return {
+      element: el,
+      strategy: "getByLabel",
+      code: `this.page.getByLabel("${escapeStr(el.associatedLabel)}")`,
+      score: 4,
+      variableName: suggestVariableName(el),
+    };
+  }
+
+  // Strategy 4: getByPlaceholder
   if (el.placeholder) {
     return {
       element: el,
@@ -152,7 +153,7 @@ export function rankLocator(el: ElementInfo): RankedLocator {
     };
   }
 
-  // Strategy 5: locator by ID (★★☆☆☆)
+  // Strategy 5: locator by ID
   if (el.id && !isGeneratedId(el.id)) {
     return {
       element: el,
@@ -163,7 +164,7 @@ export function rankLocator(el: ElementInfo): RankedLocator {
     };
   }
 
-  // Strategy 6: CSS fallback (★☆☆☆☆)
+  // Strategy 6: CSS fallback
   let selector = el.tagName;
   if (el.type) selector += `[type="${el.type}"]`;
   if (el.name) selector += `[name="${escapeStr(el.name)}"]`;

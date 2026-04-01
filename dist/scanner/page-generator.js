@@ -51,9 +51,6 @@ function toClassName(pathname) {
         .join(""))
         .join("");
 }
-function stars(score) {
-    return "★".repeat(score) + "☆".repeat(5 - score);
-}
 function deduplicateNames(locators) {
     const counts = new Map();
     for (const loc of locators) {
@@ -90,7 +87,7 @@ function generatePageObject(url, pageTitle, locators) {
         lines.push("  // ── Locators ──");
         lines.push("");
         for (const loc of locators) {
-            lines.push(`  private readonly ${loc.variableName} = ${loc.code}; // ${stars(loc.score)}`);
+            lines.push(`  private readonly ${loc.variableName} = ${loc.code};`);
         }
         lines.push("");
     }

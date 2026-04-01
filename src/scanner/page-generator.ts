@@ -21,10 +21,6 @@ function toClassName(pathname: string): string {
     .join("");
 }
 
-function stars(score: number): string {
-  return "★".repeat(score) + "☆".repeat(5 - score);
-}
-
 function deduplicateNames(locators: RankedLocator[]): void {
   const counts = new Map<string, number>();
   for (const loc of locators) {
@@ -71,7 +67,7 @@ export function generatePageObject(
     lines.push("  // ── Locators ──");
     lines.push("");
     for (const loc of locators) {
-      lines.push(`  private readonly ${loc.variableName} = ${loc.code}; // ${stars(loc.score)}`);
+      lines.push(`  private readonly ${loc.variableName} = ${loc.code};`);
     }
     lines.push("");
   }
