@@ -1,4 +1,4 @@
-# Othello — Documentation
+# Histrion — Documentation
 
 > [!tip] The Golden Rule
 > **Tests never contain selectors.** They read like specifications.

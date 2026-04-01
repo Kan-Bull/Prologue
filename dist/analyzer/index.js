@@ -100,7 +100,7 @@ function printTestPlan(pageTitle, suggestions) {
 }
 async function analyze(url, outputPath) {
     console.log();
-    console.log(kleur_1.default.bold().cyan("  🧠 othello analyze"), kleur_1.default.dim("— generate a test plan from a live page"));
+    console.log(kleur_1.default.bold().cyan("  🧠 histrion analyze"), kleur_1.default.dim("— generate a test plan from a live page"));
     console.log();
     // Validate URL
     let parsedUrl;

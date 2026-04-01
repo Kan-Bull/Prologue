@@ -1,9 +1,9 @@
 {
-  "name": "othello",
-  "version": "3.0.0",
+  "name": "histrion",
+  "version": "2.6.0",
   "description": "Scaffold a production-grade Playwright + TypeScript project with Page Object Model architecture",
   "bin": {
-    "othello": "./dist/index.js"
+    "histrion": "./dist/index.js"
   },
   "scripts": {
     "build": "tsc",
@@ -20,11 +20,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Kan-Bull/Prologue.git"
+    "url": "https://github.com/Kan-Bull/histrion.git"
   },
-  "homepage": "https://github.com/Kan-Bull/Prologue#readme",
+  "homepage": "https://github.com/Kan-Bull/histrion#readme",
   "bugs": {
-    "url": "https://github.com/Kan-Bull/Prologue/issues"
+    "url": "https://github.com/Kan-Bull/histrion/issues"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

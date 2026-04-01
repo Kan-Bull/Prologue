@@ -78,7 +78,7 @@ function printTestPlan(
 export async function analyze(url: string, outputPath?: string): Promise<void> {
   console.log();
   console.log(
-    kleur.bold().cyan("  🧠 othello analyze"),
+    kleur.bold().cyan("  🧠 histrion analyze"),
     kleur.dim("— generate a test plan from a live page"),
   );
   console.log();

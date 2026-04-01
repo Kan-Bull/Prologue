@@ -25,7 +25,7 @@ Before writing code, open DevTools and identify every element you'll interact wi
 | Success alert | `role="alert"` | Appears after submit |
 | Validation errors | `data-test="*-error"` | One per required field |
 
-> **Tip:** You can use `npx othello scan https://practicesoftwaretesting.com/contact` to automate this step. The scanner finds all interactive elements and picks the best locator strategy for each one.
+> **Tip:** You can use `npx histrion scan https://practicesoftwaretesting.com/contact` to automate this step. The scanner finds all interactive elements and picks the best locator strategy for each one.
 
 ---
 

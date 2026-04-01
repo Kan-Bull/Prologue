@@ -74,22 +74,22 @@ function run(cmd, cwd) {
 // ──────────────────────────────────────────────
 function printUsage() {
     console.log();
-    console.log(kleur_1.default.bold().cyan("  ⚡ othello"), kleur_1.default.dim("— Playwright testing toolkit"));
+    console.log(kleur_1.default.bold().cyan("  ⚡ histrion"), kleur_1.default.dim("— Playwright testing toolkit"));
     console.log();
     console.log(kleur_1.default.bold("  Commands:\n"));
-    console.log("    othello create               Scaffold a new Playwright project");
-    console.log("    othello scan <url>           Analyze a page and generate a Page Object");
-    console.log("    othello analyze <url>        Generate a test plan from a live page");
+    console.log("    histrion create               Scaffold a new Playwright project");
+    console.log("    histrion scan <url>           Analyze a page and generate a Page Object");
+    console.log("    histrion analyze <url>        Generate a test plan from a live page");
     console.log();
     console.log(kleur_1.default.bold("  Options:\n"));
     console.log("    scan --test-id-attr <attr>   Custom test ID attribute (default: data-testid)");
     console.log("    analyze --output <path>      Custom output path for generated spec");
     console.log();
     console.log(kleur_1.default.bold("  Examples:\n"));
-    console.log(kleur_1.default.dim("    npx othello create"));
-    console.log(kleur_1.default.dim("    npx othello scan https://myapp.com/login"));
-    console.log(kleur_1.default.dim("    npx othello scan https://myapp.com/login --test-id-attr data-cy"));
-    console.log(kleur_1.default.dim("    npx othello analyze https://myapp.com/contact"));
+    console.log(kleur_1.default.dim("    npx histrion create"));
+    console.log(kleur_1.default.dim("    npx histrion scan https://myapp.com/login"));
+    console.log(kleur_1.default.dim("    npx histrion scan https://myapp.com/login --test-id-attr data-cy"));
+    console.log(kleur_1.default.dim("    npx histrion analyze https://myapp.com/contact"));
     console.log();
 }
 async function main() {
@@ -98,8 +98,8 @@ async function main() {
     if (args[0] === "analyze") {
         const url = args[1];
         if (!url) {
-            console.log(kleur_1.default.red("\n  Usage: othello analyze <url> [--output <path>]"));
-            console.log(kleur_1.default.dim("  Example: othello analyze https://example.com/contact\n"));
+            console.log(kleur_1.default.red("\n  Usage: histrion analyze <url> [--output <path>]"));
+            console.log(kleur_1.default.dim("  Example: histrion analyze https://example.com/contact\n"));
             process.exit(1);
         }
         const outputIdx = args.indexOf("--output");
@@ -113,8 +113,8 @@ async function main() {
     if (args[0] === "scan") {
         const url = args[1];
         if (!url) {
-            console.log(kleur_1.default.red("\n  Usage: othello scan <url>"));
-            console.log(kleur_1.default.dim("  Example: othello scan https://example.com/contact\n"));
+            console.log(kleur_1.default.red("\n  Usage: histrion scan <url>"));
+            console.log(kleur_1.default.dim("  Example: histrion scan https://example.com/contact\n"));
             process.exit(1);
         }
         const testIdAttr = args.includes("--test-id-attr")
@@ -139,7 +139,7 @@ async function main() {
     }
     // ── Scaffold ──
     console.log();
-    console.log(kleur_1.default.bold().cyan("  ⚡ othello create"), kleur_1.default.dim("— scaffold a production-grade Playwright project"));
+    console.log(kleur_1.default.bold().cyan("  ⚡ histrion create"), kleur_1.default.dim("— scaffold a production-grade Playwright project"));
     console.log();
     const response = await (0, prompts_1.default)([
         {
@@ -324,7 +324,7 @@ async function main() {
     const s6 = spinner("Creating initial commit...");
     try {
         run("git add -A", targetDir);
-        run('git commit -m "Initial scaffold via othello"', targetDir);
+        run('git commit -m "Initial scaffold via histrion"', targetDir);
         s6.stop(kleur_1.default.green("✓ Initial commit created"));
     }
     catch {

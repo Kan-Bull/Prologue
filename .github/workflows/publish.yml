@@ -31,7 +31,7 @@ jobs:
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
           echo "version=$PACKAGE_VERSION" >> "$GITHUB_OUTPUT"
-          if npm view othello@"$PACKAGE_VERSION" version 2>/dev/null; then
+          if npm view histrion@"$PACKAGE_VERSION" version 2>/dev/null; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
           else
             echo "exists=false" >> "$GITHUB_OUTPUT"
