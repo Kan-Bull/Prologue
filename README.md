@@ -30,11 +30,11 @@ Run one command. Answer a few questions. Get a fully configured project with:
 - **API helpers** — setup/teardown without touching the UI
 - **Visual regression** — screenshot comparison with smart masking
 - **Custom HTML reporter** — dark-mode, filterable, tag-aware, auto-open on failure
-- **Structured logger** — every action traced with color-coded timestamps
+- **Structured logger** — every action traced with color-coded timestamps, fully customizable theme
 - **Custom expect matchers** — domain-specific assertions
 - **Biome** — linting + formatting, zero config
 - **GitHub Actions** — CI/CD with matrix strategy, manual dispatch
-- **13 documentation guides** — from getting started to best practices
+- **14 documentation guides** — from getting started to best practices
 - **Working examples** — Contact page tests against [practicesoftwaretesting.com](https://practicesoftwaretesting.com)
 
 ## Quick start
@@ -69,6 +69,20 @@ That's it. The CLI scaffolds the project, installs dependencies, downloads Playw
     cd my-e2e-tests
     code .
 ```
+
+## Built-in structured logger
+
+Every Page Object, Component, and API action is traced automatically:
+
+```
+14:32:01 ■ ContactPage     │ 🔹 Filling contact form for john@example.com
+14:32:01 ■ ContactPage     │    ▸ Fill "first name" with "John"
+14:32:02 ■ ContactPage     │    ▸ Fill "last name" with "Doe"
+14:32:02 ■ ContactPage     │ 🔹 Submitting contact form
+14:32:03 ■ ContactPage     │ ✓ Success alert visible
+```
+
+Five log levels (`step`, `action`, `success`, `warn`, `error`) with customizable colors, icons, and formatting. Add your own levels in one file — see `src/utils/logger.ts`.
 
 ## The golden rule
 
@@ -185,6 +199,16 @@ Environments are defined in `src/config/env.config.ts` with per-env timeouts, re
 The scaffolded project includes 13 local documentation guides in `docs/` (gitignored). They cover everything from architecture to best practices, written for developers new to the framework.
 
 Open `docs/00-index.md` in VS Code or Obsidian to browse them.
+
+## What gets installed
+
+| Package | Purpose |
+|---------|---------|
+| [`@playwright/test`](https://playwright.dev/) | E2E testing framework — browser automation, assertions, test runner |
+| [`typescript`](https://www.typescriptlang.org/) | Type safety across Page Objects, builders, and fixtures |
+| [`@biomejs/biome`](https://biomejs.dev/) | Linting + formatting in one tool — replaces ESLint and Prettier |
+| [`dotenv`](https://github.com/motdotla/dotenv) | Loads environment variables from `.env` for local configuration |
+| [`@faker-js/faker`](https://fakerjs.dev/) | *(optional)* Generates realistic random test data in builders |
 
 ## Requirements
 

@@ -16,7 +16,7 @@ src/
 │   └── types/           # Domain types
 ├── config/              # Environment & user configuration
 ├── reporters/           # Custom test reporters
-└── utils/               # Logger, visual regression, custom matchers
+└── utils/               # Structured logger, visual regression, custom matchers
 
 tests/
 ├── e2e/                 # End-to-end test specs
@@ -144,6 +144,20 @@ test('should work', async ({ myNewPage }) => {
 });
 ```
 
+## Structured Logger
+
+Every action is traced with a timestamped, color-coded log — so when a test fails, you know exactly what happened:
+
+```
+14:32:01 ■ ContactPage     │ 🔹 Filling contact form for john@example.com
+14:32:01 ■ ContactPage     │    ▸ Fill "first name" with "John"
+14:32:02 ■ ContactPage     │    ▸ Fill "last name" with "Doe"
+14:32:02 ■ ContactPage     │ 🔹 Submitting contact form
+14:32:03 ■ ContactPage     │ ✓ Success alert visible
+```
+
+The logger is fully customizable — change colors, icons, add new log levels, or adjust the output format. See `src/utils/logger.ts` or read `docs/13-logger.md` for details.
+
 ## Tags
 
 Use Playwright's built-in tagging for test organization:
@@ -159,6 +173,16 @@ Use Playwright's built-in tagging for test organization:
 npx playwright test --grep @smoke
 npx playwright test --grep-invert @visual
 ```
+
+## Dependencies
+
+| Package | Purpose |
+|---------|---------|
+| [`@playwright/test`](https://playwright.dev/) | E2E testing framework — browser automation, assertions, test runner |
+| [`typescript`](https://www.typescriptlang.org/) | Type safety across Page Objects, builders, and fixtures |
+| [`@biomejs/biome`](https://biomejs.dev/) | Linting + formatting in one tool — replaces ESLint and Prettier |
+| [`dotenv`](https://github.com/motdotla/dotenv) | Loads environment variables from `.env` for local configuration |
+| [`@faker-js/faker`](https://fakerjs.dev/) | *(optional)* Generates realistic random test data in builders |
 
 ## CI/CD
 

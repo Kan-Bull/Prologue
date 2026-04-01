@@ -39,5 +39,6 @@
 | 10 | custom-matchers | Domain-specific assertions with `expect.extend` |
 | 11 | ci-cd| GitHub Actions workflow, secrets, artifacts, reports |
 | 12 | best-practices | Golden rules, tagging, naming conventions, common mistakes |
+| 13 | logger | Structured logger: levels, customization, adding your own levels |
 
 
