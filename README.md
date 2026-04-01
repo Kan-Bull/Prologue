@@ -40,10 +40,12 @@ Run one command. Answer a few questions. Get a fully configured project with:
 ## Quick start
 
 ```bash
-npx histrion create
+npx histrion create              # interactive — prompts for project name
+npx histrion create my-e2e-tests # create in a new folder
+npx histrion create .            # scaffold in current directory
 ```
 
-That's it. The CLI scaffolds the project, installs dependencies, downloads Playwright browsers, runs a lint check, and initializes git. You walk away with a ready-to-use test suite.
+The CLI scaffolds the project, installs dependencies, downloads Playwright browsers, runs a lint check, and initializes git. You walk away with a ready-to-use test suite.
 
 ```
   ⚡ histrion create — scaffold a production-grade Playwright project

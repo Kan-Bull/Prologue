@@ -58,7 +58,7 @@ function printUsage(): void {
   console.log(kleur.bold().cyan("  ⚡ histrion"), kleur.dim("— Playwright testing toolkit"));
   console.log();
   console.log(kleur.bold("  Commands:\n"));
-  console.log("    histrion create               Scaffold a new Playwright project");
+  console.log("    histrion create [name|.]       Scaffold a new Playwright project");
   console.log("    histrion scan <url>           Analyze a page and generate a Page Object");
   console.log("    histrion analyze <url>        Generate a test plan from a live page");
   console.log();
@@ -68,6 +68,8 @@ function printUsage(): void {
   console.log();
   console.log(kleur.bold("  Examples:\n"));
   console.log(kleur.dim("    npx histrion create"));
+  console.log(kleur.dim("    npx histrion create my-e2e-tests"));
+  console.log(kleur.dim("    npx histrion create .              # scaffold in current directory"));
   console.log(kleur.dim("    npx histrion scan https://myapp.com/login"));
   console.log(kleur.dim("    npx histrion scan https://myapp.com/login --test-id-attr data-cy"));
   console.log(kleur.dim("    npx histrion analyze https://myapp.com/contact"));
@@ -123,6 +125,10 @@ async function main(): Promise<void> {
   }
 
   // ── Scaffold ──
+  const inlineArg = args[1];
+  const scaffoldInPlace = inlineArg === ".";
+  const inlineName = inlineArg && !inlineArg.startsWith("-") ? inlineArg : undefined;
+
   console.log();
   console.log(
     kleur.bold().cyan("  ⚡ histrion create"),
@@ -133,12 +139,12 @@ async function main(): Promise<void> {
   const response = await prompts(
     [
       {
-        type: "text",
+        type: inlineName ? null : "text",
         name: "projectName",
         message: "Project name",
         initial: "e2e-tests",
         validate: (v: string) =>
-          /^[a-z0-9-]+$/.test(v) ? true : "Use lowercase letters, numbers, and hyphens only",
+          /^[a-z0-9-.]+$/.test(v) ? true : "Use lowercase letters, numbers, hyphens, and dots only",
       },
       {
         type: "text",
@@ -181,11 +187,28 @@ async function main(): Promise<void> {
   );
 
   const config = response as ProjectConfig;
-  const targetDir = path.resolve(process.cwd(), config.projectName);
 
-  if (fs.existsSync(targetDir)) {
+  if (scaffoldInPlace) {
+    config.projectName = path.basename(process.cwd());
+  } else if (inlineName) {
+    config.projectName = inlineName;
+  }
+
+  const targetDir = scaffoldInPlace
+    ? process.cwd()
+    : path.resolve(process.cwd(), config.projectName);
+
+  if (!scaffoldInPlace && fs.existsSync(targetDir)) {
     console.log(kleur.red(`\n  ✗ Directory "${config.projectName}" already exists.\n`));
     process.exit(1);
+  }
+
+  if (scaffoldInPlace) {
+    const entries = fs.readdirSync(targetDir).filter((e) => e !== ".git");
+    if (entries.length > 0) {
+      console.log(kleur.red(`\n  ✗ Current directory is not empty.\n`));
+      process.exit(1);
+    }
   }
 
   console.log();
