@@ -34,8 +34,9 @@ Run one command. Answer a few questions. Get a fully configured project with:
 - **Custom expect matchers** — domain-specific assertions
 - **Biome** — linting + formatting, zero config
 - **GitHub Actions** — CI/CD with matrix strategy, manual dispatch
-- **14 documentation guides** — from getting started to best practices
+- **15 documentation guides** — from getting started to best practices
 - **Working examples** — Contact page tests against [practicesoftwaretesting.com](https://practicesoftwaretesting.com)
+- **Page scanner** — analyze any live page and generate a Page Object automatically
 
 ## Quick start
 
@@ -69,6 +70,38 @@ That's it. The CLI scaffolds the project, installs dependencies, downloads Playw
     cd my-e2e-tests
     code .
 ```
+
+## Page scanner
+
+Don't write Page Objects from scratch. Point the scanner at any page and get a ready-to-use file:
+
+```bash
+npx create-prologue scan https://myapp.com/login
+```
+
+```
+  🔍 create-prologue scan — analyze page & generate Page Object
+
+  ✓ Page loaded — "Login"
+  ✓ Found 5 interactive elements
+
+  Scan results:
+
+  Element               Strategy
+  ────────────────────────────────────
+  emailInput            getByTestId
+  passwordInput         getByTestId
+  loginButton           getByTestId
+  forgotPasswordLink    getByRole
+  navLogoLink           locator(css)
+
+  ✓ Page Object generated
+
+  File: src/pages/login.page.ts
+  Stable locators: 3/5 (60%)
+```
+
+The scanner prioritizes stable, language-independent locators (`data-testid`, `id`) over locale-dependent ones (`getByRole`, `getByLabel`). Works on any website — no Prologue project required.
 
 ## Built-in structured logger
 
