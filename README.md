@@ -24,18 +24,18 @@ Run one command. Answer a few questions. Get a fully configured project with:
 - **Page Object Model architecture** — 7-layer separation of concerns
 - **Reusable components** — Table, Modal, Form, Toast out of the box
 - **Type-safe fixtures** — Page Objects injected into tests automatically
-- **Fluent data builders** — chainable test data construction with optional Faker.js
-- **Faker.js integration** — generate realistic random test data (optional)
+- **Fluent data builders** — chainable test data construction with optional [Faker.js](https://fakerjs.dev/) for realistic random data
 - **API helpers** — setup/teardown without touching the UI
 - **Visual regression** — screenshot comparison with smart masking
 - **Custom HTML reporter** — dark-mode, filterable, tag-aware, auto-open on failure
 - **Structured logger** — every action traced with color-coded timestamps, fully customizable theme
 - **Custom expect matchers** — domain-specific assertions
-- **Biome** — linting + formatting, zero config
+- **Biome** — linting + formatting in one tool, zero config
 - **GitHub Actions** — CI/CD with matrix strategy, manual dispatch
-- **16 documentation guides** — from getting started to best practices
 - **Starter templates** — Page Object, fixture & test boilerplate ready to fill in
-- **Page scanner** — analyze any live page and generate a Page Object automatically
+- **AI instructions** — optional rules for Copilot, Claude Code, Cursor, or Windsurf so your AI assistant follows the architecture
+- **Page scanner** — analyze any live page and generate a Page Object automatically, with `--headed` and `--auth` support for authenticated pages
+- **18 documentation guides** — from getting started to best practices, including a glossary
 
 ## Quick start
 
@@ -57,8 +57,9 @@ The CLI scaffolds the project, installs dependencies, downloads Playwright brows
   - Include visual regression tests? Yes
   - Include API helpers for setup/teardown? Yes
   - Include GitHub Actions CI/CD? Yes
+  - AI coding assistant instructions? GitHub Copilot, Claude Code
 
-  ✓ Scaffolded 36 files
+  ✓ Scaffolded 38 files
   ✓ Dependencies installed
   ✓ Playwright browsers installed
   ✓ All files pass lint & format
@@ -104,19 +105,20 @@ npx histrion scan https://myapp.com/login
 
 The scanner prioritizes stable, language-independent locators (`data-testid`, `id`) over locale-dependent ones (`getByRole`, `getByLabel`). Works on any website — no Histrion project required.
 
-## Built-in structured logger
+### Scanning authenticated pages
 
-Every Page Object, Component, and API action is traced automatically:
+Need to scan a page behind login? Two options:
 
+```bash
+# Open a visible browser — log in manually, press Enter to scan
+npx histrion scan https://myapp.com/settings --headed
+
+# Use a saved auth state (cookies + localStorage)
+npx histrion scan https://myapp.com/settings --auth auth/admin.json
+
+# Both — pre-load auth, but open headed for manual navigation
+npx histrion scan https://myapp.com/settings --headed --auth auth/admin.json
 ```
-14:32:01 ■ LoginPage       │ 🔹 Filling credentials for user@test.com
-14:32:01 ■ LoginPage       │    ▸ Fill "username" with "user@test.com"
-14:32:02 ■ LoginPage       │    ▸ Fill "password" with "***"
-14:32:02 ■ LoginPage       │ 🔹 Submitting login form
-14:32:03 ■ LoginPage       │ ✓ Dashboard visible
-```
-
-Five log levels (`step`, `action`, `success`, `warn`, `error`) with customizable colors, icons, and formatting. Add your own levels in one file — see `src/utils/logger.ts`.
 
 ## The golden rule
 
@@ -132,6 +134,20 @@ test('user can log in', async ({ loginPage }) => {
 ```
 
 If you see a `page.click()` or a `data-testid` in a test file, something went wrong.
+
+## Built-in structured logger
+
+Every Page Object, Component, and API action is traced automatically:
+
+```
+14:32:01 ■ LoginPage       │ 🔹 Filling credentials for user@test.com
+14:32:01 ■ LoginPage       │    ▸ Fill "username" with "user@test.com"
+14:32:02 ■ LoginPage       │    ▸ Fill "password" with "***"
+14:32:02 ■ LoginPage       │ 🔹 Submitting login form
+14:32:03 ■ LoginPage       │ ✓ Dashboard visible
+```
+
+Five log levels (`step`, `action`, `success`, `warn`, `error`) with customizable colors, icons, and formatting. Add your own levels in one file — see `src/utils/logger.ts`.
 
 ## Architecture
 
@@ -153,7 +169,7 @@ tests/
 ├── e2e/            End-to-end test specs
 └── visual/         Visual regression specs
 
-docs/               Local-only documentation (13 guides, gitignored)
+docs/               Local documentation (18 guides, gitignored)
 ```
 
 Dependencies flow **down** only. Tests → Fixtures → Pages → Components → Core → Config.
@@ -169,20 +185,20 @@ The scaffolded project includes ready-to-use boilerplate:
 
 Open `example.page.ts` and follow `docs/15-writing-your-first-test.md` to adapt them to your app.
 
-## Available scripts
+## AI coding assistant instructions
 
-| Script | Description |
-|--------|-------------|
-| `npm test` | Run all tests |
-| `npm run test:smoke` | Run `@smoke` tagged tests |
-| `npm run test:regression` | Run `@regression` tagged tests |
-| `npm run test:visual` | Visual regression tests |
-| `npm run test:ui` | Open Playwright UI mode |
-| `npm run test:debug` | Step-by-step debugger |
-| `npm run test:staging` | Run against staging env |
-| `npm run lint` | Check with Biome |
-| `npm run lint:fix` | Auto-fix lint issues |
-| `npm run codegen` | Playwright code generator |
+During scaffolding, you can generate instruction files for your AI coding assistant. These encode the full POM architecture rules so the AI follows your conventions — private locators, fixtures, logger usage, naming patterns, and more.
+
+Supported tools:
+
+| Tool | Generated file |
+|------|---------------|
+| GitHub Copilot | `.github/copilot-instructions.md` |
+| Claude Code | `CLAUDE.md` |
+| Cursor | `.cursorrules` |
+| Windsurf | `.windsurfrules` |
+
+Select one or more during `histrion create`. The content is identical — same rules, different filenames.
 
 ## Adding a new page — 3 steps
 
@@ -220,6 +236,21 @@ test('can update name', async ({ settingsPage }) => {
 });
 ```
 
+## Available scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm test` | Run all tests |
+| `npm run test:smoke` | Run `@smoke` tagged tests |
+| `npm run test:regression` | Run `@regression` tagged tests |
+| `npm run test:visual` | Visual regression tests |
+| `npm run test:ui` | Open Playwright UI mode |
+| `npm run test:debug` | Step-by-step debugger |
+| `npm run test:staging` | Run against staging env |
+| `npm run lint` | Check with Biome |
+| `npm run lint:fix` | Auto-fix lint issues |
+| `npm run codegen` | Playwright code generator |
+
 ## Environment management
 
 ```bash
@@ -232,7 +263,7 @@ Environments are defined in `src/config/env.config.ts` with per-env timeouts, re
 
 ## Documentation
 
-The scaffolded project includes 13 local documentation guides in `docs/` (gitignored). They cover everything from architecture to best practices, written for developers new to the framework.
+The scaffolded project includes 18 local documentation guides in `docs/` (gitignored). They cover everything from architecture to best practices, written for developers new to the framework.
 
 Open `docs/00-index.md` in VS Code or Obsidian to browse them.
 
