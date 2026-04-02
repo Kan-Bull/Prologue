@@ -9,6 +9,7 @@ import { scan } from "./scanner";
 
 const TEMPLATES_DIR = path.join(__dirname, "..", "templates");
 const DOCS_DIR = path.join(__dirname, "..", "docs");
+const AI_INSTRUCTIONS_DIR = path.join(__dirname, "..", "resources");
 
 interface ProjectConfig {
   projectName: string;
@@ -18,6 +19,7 @@ interface ProjectConfig {
   includeVisual: boolean;
   includeApi: boolean;
   includeCi: boolean;
+  aiInstructions: string[];
 }
 
 // ──────────────────────────────────────────────
@@ -162,6 +164,18 @@ async function main(): Promise<void> {
         message: "Include GitHub Actions CI/CD?",
         initial: true,
       },
+      {
+        type: "multiselect",
+        name: "aiInstructions",
+        message: "AI coding assistant instructions?",
+        choices: [
+          { title: "GitHub Copilot", value: "copilot" },
+          { title: "Claude Code", value: "claude" },
+          { title: "Cursor", value: "cursor" },
+          { title: "Windsurf", value: "windsurf" },
+        ],
+        hint: "— space to select, enter to confirm",
+      },
     ],
     { onCancel: () => process.exit(1) },
   );
@@ -270,6 +284,29 @@ async function main(): Promise<void> {
     }
     if (!config.includeCi) {
       removeDir(path.join(targetDir, ".github"));
+    }
+
+    // Write AI coding assistant instructions
+    if (config.aiInstructions.length > 0) {
+      const aiTemplatePath = path.join(AI_INSTRUCTIONS_DIR, "ai-instructions.md");
+      let aiContent = fs.readFileSync(aiTemplatePath, "utf-8");
+      aiContent = aiContent.replace(/\{\{projectName\}\}/g, config.projectName);
+
+      const aiFileMap: Record<string, string> = {
+        copilot: path.join(".github", "copilot-instructions.md"),
+        claude: "CLAUDE.md",
+        cursor: ".cursorrules",
+        windsurf: ".windsurfrules",
+      };
+
+      for (const tool of config.aiInstructions) {
+        const relativePath = aiFileMap[tool];
+        if (relativePath) {
+          const fullPath = path.join(targetDir, relativePath);
+          fs.mkdirSync(path.dirname(fullPath), { recursive: true });
+          fs.writeFileSync(fullPath, aiContent);
+        }
+      }
     }
 
     copyDir(DOCS_DIR, path.join(targetDir, "docs"), config);
@@ -383,6 +420,23 @@ async function main(): Promise<void> {
     );
   }
 
+  if (config.aiInstructions.length > 0) {
+    const toolNames: Record<string, string> = {
+      copilot: "GitHub Copilot",
+      claude: "Claude Code",
+      cursor: "Cursor",
+      windsurf: "Windsurf",
+    };
+    const names = config.aiInstructions.map((t) => toolNames[t] || t).join(", ");
+    console.log(kleur.bold("  AI instructions included:\n"));
+    console.log(
+      kleur.dim(`    Generated for: ${names}`),
+    );
+    console.log(
+      kleur.dim("    Your AI assistant will follow the project's POM architecture.\n"),
+    );
+  }
+
   printStructure(config);
 }
 
@@ -456,6 +510,12 @@ function printStructure(config: ProjectConfig): void {
       ? "  ├── e2e/             End-to-end specs (starter template included)"
       : "  ├── e2e/             End-to-end specs",
     config.includeVisual ? "  └── visual/          Visual regression specs" : null,
+    config.aiInstructions.length > 0
+      ? `  AI instructions:     ${config.aiInstructions.map((t) => {
+          const fileMap: Record<string, string> = { copilot: ".github/copilot-instructions.md", claude: "CLAUDE.md", cursor: ".cursorrules", windsurf: ".windsurfrules" };
+          return fileMap[t] || t;
+        }).join(", ")}`
+      : null,
   ].filter(Boolean);
 
   for (const line of lines) {
