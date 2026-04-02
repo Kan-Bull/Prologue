@@ -8,25 +8,25 @@ The file `src/fixtures/index.ts` defines custom fixtures that extend Playwright'
 
 ```typescript
 import { test as base } from '@playwright/test';
-import { ContactPage } from '../pages/contact.page';
+import { LoginPage } from '../pages/login.page';
 
 type TestFixtures = {
-  contactPage: ContactPage;
+  loginPage: LoginPage;
 };
 
 export const test = base.extend<TestFixtures>({
-  contactPage: async ({ page }, use) => {
-    await use(new ContactPage(page));
+  loginPage: async ({ page }, use) => {
+    await use(new LoginPage(page));
   },
 });
 
 export { expect } from '../utils/custom-matchers';
 ```
 
-When a test declares `async ({ contactPage }) =>`, Playwright:
+When a test declares `async ({ loginPage }) =>`, Playwright:
 1. Creates a fresh `page` (browser tab)
-2. Passes it to the `contactPage` fixture function
-3. Constructs `new ContactPage(page)`
+2. Passes it to the `loginPage` fixture function
+3. Constructs `new LoginPage(page)`
 4. Injects the instance into your test via `use()`
 5. After the test, tears everything down
 
@@ -40,7 +40,7 @@ import { SettingsPage } from '../pages/settings.page';
 
 // 2. Add to the type
 type TestFixtures = {
-  contactPage: ContactPage;
+  loginPage: LoginPage;
   settingsPage: SettingsPage;  // ← add
 };
 
@@ -64,20 +64,20 @@ test('can change settings', async ({ settingsPage }) => {
 Sometimes you want a fixture that does setup work before the test runs — like navigating to a page or logging in:
 
 ```typescript
-contactPage: async ({ page }, use) => {
-  const contact = new ContactPage(page);
-  await contact.navigate();          // pre-navigate
-  await contact.waitForPageReady();  // wait for page to load
-  await use(contact);                // test starts here
+loginPage: async ({ page }, use) => {
+  const login = new LoginPage(page);
+  await login.navigate();          // pre-navigate
+  await login.waitForPageReady();  // wait for page to load
+  await use(login);                // test starts here
 },
 ```
 
-The test receives a `contactPage` that's already on the contact page:
+The test receives a `loginPage` that's already on the login page:
 
 ```typescript
-test('contact form is ready', async ({ contactPage }) => {
+test('login form is ready', async ({ loginPage }) => {
   // Already navigated — go straight to assertions
-  await contactPage.expectSuccessMessage();
+  await loginPage.expectFormVisible();
 });
 ```
 
@@ -86,14 +86,14 @@ test('contact form is ready', async ({ contactPage }) => {
 
 ## Lazy fixtures
 
-Playwright only runs fixtures that the test actually requests. If a test only needs `contactPage`, other fixtures are never created. No wasted work.
+Playwright only runs fixtures that the test actually requests. If a test only needs `loginPage`, other fixtures are never created. No wasted work.
 
 ```typescript
-// Only contactPage is instantiated — other fixtures are skipped
-test('contact form shows validation errors', async ({ contactPage }) => {
-  await contactPage.navigate();
-  await contactPage.submitForm();
-  await contactPage.expectValidationErrors();
+// Only loginPage is instantiated — other fixtures are skipped
+test('login form shows validation errors', async ({ loginPage }) => {
+  await loginPage.navigate();
+  await loginPage.submit();
+  await loginPage.expectValidationErrors();
 });
 ```
 
@@ -103,11 +103,11 @@ The code after `await use()` runs as cleanup, even if the test fails:
 
 ```typescript
 apiClient: async ({}, use) => {
-  const api = new ContactAPI();
-  const contact = await api.createContact(ContactBuilder.create().build());
+  const api = new UserAPI();
+  const user = await api.createUser(UserBuilder.create().build());
   await use(api);
   // Cleanup: runs after test completes (pass or fail)
-  await api.deleteContact(contact.id);
+  await api.deleteUser(user.id);
   await api.dispose();
 },
 ```
@@ -119,9 +119,9 @@ This is how you guarantee teardown. See [[07-api-helpers]] for more on API fixtu
 Fixtures can depend on other fixtures:
 
 ```typescript
-preparedContactPage: async ({ contactPage }, use) => {
-  await contactPage.navigate();
-  await use(contactPage);
+preparedLoginPage: async ({ loginPage }, use) => {
+  await loginPage.navigate();
+  await use(loginPage);
 },
 ```
 

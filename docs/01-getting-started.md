@@ -43,7 +43,7 @@ This runs all E2E tests in the `e2e-admin` project using Chromium. Results appea
 │   │   ├── form.component.ts   #   FormComponent
 │   │   └── toast.component.ts  #   ToastComponent
 │   ├── pages/                  # Page Objects — one per page
-│   │   └── contact.page.ts     #   ContactPage
+│   │   └── login.page.ts       #   LoginPage
 │   ├── fixtures/               # Playwright fixture definitions
 │   │   └── index.ts            #   All fixtures registered here
 │   ├── api/                    # API clients for setup/teardown
@@ -51,7 +51,7 @@ This runs all E2E tests in the `e2e-admin` project using Chromium. Results appea
 │   ├── data/
 │   │   ├── builders/           # Fluent data builders
 │   │   │   ├── base.builder.ts #   Builder<T> base class
-│   │   │   └── contact.builder.ts  #   ContactBuilder
+│   │   │   └── user.builder.ts     #   UserBuilder
 │   │   └── types/              # Domain types
 │   │       └── index.ts
 │   ├── config/
@@ -65,7 +65,7 @@ This runs all E2E tests in the `e2e-admin` project using Chromium. Results appea
 │       └── custom-matchers.ts  # Domain-specific assertions
 ├── tests/
 │   ├── e2e/                    # End-to-end test specs
-│   │   └── contact.spec.ts
+│   │   └── login.spec.ts
 │   └── visual/                 # Visual regression specs
 │       └── visual.spec.ts
 └── docs/                       # You are here

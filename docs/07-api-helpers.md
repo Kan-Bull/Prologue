@@ -73,21 +73,21 @@ For per-test data that needs cleanup, use fixtures with the `await use()` patter
 
 ```typescript
 // In src/fixtures/index.ts
-import { ContactAPI } from '../api/contact.api';
-import { ContactBuilder } from '../data/builders/contact.builder';
+import { UserAPI } from '../api/user.api';
+import { UserBuilder } from '../data/builders/user.builder';
 
-testContact: async ({}, use) => {
-  const api = new ContactAPI();
+testUser: async ({}, use) => {
+  const api = new UserAPI();
 
-  // Setup: create contact before test
-  const contact = await api.createContact(
-    ContactBuilder.create().withSubject('Support Request').build()
+  // Setup: create user before test
+  const user = await api.createUser(
+    UserBuilder.create().withRole('standard').build()
   );
 
-  await use(contact);
+  await use(user);
 
-  // Cleanup: delete contact after test (runs even on failure)
-  await api.deleteContact(contact.id);
+  // Cleanup: delete user after test (runs even on failure)
+  await api.deleteUser(user.id);
   await api.dispose();
 },
 ```
@@ -98,11 +98,11 @@ testContact: async ({}, use) => {
 In the test:
 
 ```typescript
-test('submitted contact appears in admin view', async ({ adminPage, testContact }) => {
-  // testContact was created via API, no UI interaction needed
+test('created user appears in admin view', async ({ adminPage, testUser }) => {
+  // testUser was created via API, no UI interaction needed
   await adminPage.navigate();
-  await adminPage.searchContacts(testContact.subject);
-  await adminPage.expectContactVisible(testContact.subject);
+  await adminPage.searchUsers(testUser.username);
+  await adminPage.expectUserVisible(testUser.username);
 });
 ```
 

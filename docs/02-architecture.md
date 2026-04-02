@@ -64,9 +64,9 @@ See [[04-components]] for details.
 One Page Object per page of your application. Pages compose Components and expose semantic methods.
 
 ```typescript
-// ContactPage extends BasePage, uses Logger
-readonly path = '/contact';
-readonly pageTitle = /Contact/;
+// LoginPage extends BasePage, uses Logger
+readonly path = '/login';
+readonly pageTitle = /Login/;
 ```
 
 See [[03-page-objects]] for details.
@@ -76,8 +76,8 @@ See [[03-page-objects]] for details.
 The bridge between Page Objects and tests. Each fixture instantiates a Page Object and injects it into the test function.
 
 ```typescript
-contactPage: async ({ page }, use) => {
-  await use(new ContactPage(page));
+loginPage: async ({ page }, use) => {
+  await use(new LoginPage(page));
 },
 ```
 
@@ -88,11 +88,11 @@ See [[05-fixtures]] for details.
 Test specs that read like specifications. They use fixtures to get Page Objects and call semantic methods.
 
 ```typescript
-test('user can submit a contact form', async ({ contactPage }) => {
-  await contactPage.navigate();
-  await contactPage.fillContactForm(ContactBuilder.create().build());
-  await contactPage.submitForm();
-  await contactPage.expectSuccessMessage();
+test('user can log in with valid credentials', async ({ loginPage }) => {
+  await loginPage.navigate();
+  await loginPage.fillCredentials(UserBuilder.create().build());
+  await loginPage.submit();
+  await loginPage.expectDashboard();
 });
 ```
 

@@ -74,7 +74,7 @@ Variable names are always derived from code-level attributes (`data-testid`, `id
 ### Basic scan
 
 ```bash
-npx histrion scan https://myapp.com/contact
+npx histrion scan https://myapp.com/login
 ```
 
 ### Custom test ID attribute
@@ -82,8 +82,28 @@ npx histrion scan https://myapp.com/contact
 If your app uses a custom test ID attribute (e.g., `data-cy` for Cypress, `data-qa`):
 
 ```bash
-npx histrion scan https://myapp.com/contact --test-id-attr data-cy
+npx histrion scan https://myapp.com/login --test-id-attr data-cy
 ```
+
+### Headed mode (manual login)
+
+If the page requires authentication, use `--headed` to open a visible browser. Log in manually, then press Enter in the terminal to start the scan:
+
+```bash
+npx histrion scan https://myapp.com/settings --headed
+```
+
+This is useful for pages behind login walls where you don't have saved auth state yet.
+
+### Authenticated scanning
+
+If you have a saved Playwright storage state (cookies, localStorage), pass it with `--auth` to scan authenticated pages in headless mode:
+
+```bash
+npx histrion scan https://myapp.com/settings --auth auth/admin.json
+```
+
+The scanner loads the storage state before navigating, so the page sees an authenticated session.
 
 ### Output location
 
@@ -97,24 +117,24 @@ The scanner shows a summary table with each element and its chosen strategy:
 ```
   🔍 create-histrion scan — analyze page & generate Page Object
 
-  ✓ Page loaded — "Contact Us"
-  ✓ Found 16 interactive elements
+  ✓ Page loaded — "Login"
+  ✓ Found 8 interactive elements
 
   Scan results:
 
   Element               Strategy
   ────────────────────────────────────
-  firstNameInput        getByTestId
-  lastNameInput         getByTestId
-  emailInput            getByTestId
-  submitButton          getByTestId
+  usernameInput         getByTestId
+  passwordInput         getByTestId
+  loginButton           getByTestId
   forgotPasswordLink    getByRole
+  rememberMeCheckbox    getByRole
   navLogoLink           locator(css)
 
   ✓ Page Object generated
 
-  File: src/pages/contact.page.ts
-  Stable locators: 4/6 (67%)
+  File: src/pages/login.page.ts
+  Stable locators: 3/6 (50%)
 ```
 
 Strategies are color-coded:

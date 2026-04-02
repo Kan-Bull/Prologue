@@ -6,39 +6,33 @@ Hardcoded test data is brittle and repetitive:
 
 ```typescript
 // Bad — duplicated, fragile, hard to maintain
-test('can submit contact form', async ({ contactPage }) => {
-  const formData = {
-    firstName: 'Test',
-    lastName: 'User',
-    email: 'test@example.com',
-    subject: 'customer-service',
-    message: 'I need help with my order',
+test('can log in as admin', async ({ loginPage }) => {
+  const credentials = {
+    username: 'admin@example.com',
+    password: 'admin123',
   };
   // ...
 });
 
-test('can submit another contact form', async ({ contactPage }) => {
-  const formData = {
-    firstName: 'Test2',
-    lastName: 'User2',
-    email: 'test2@example.com',
-    subject: 'webmaster',
-    message: 'The website is broken',
+test('can log in as standard user', async ({ loginPage }) => {
+  const credentials = {
+    username: 'user@example.com',
+    password: 'user456',
   };
   // ...
 });
 ```
 
-When the `ContactFormData` type changes (new required field, renamed property), every test breaks.
+When the `LoginCredentials` type changes (new required field, renamed property), every test breaks.
 
 ## The solution: Builders
 
 Builders centralize defaults and expose a fluent API for overrides:
 
 ```typescript
-const contact = ContactBuilder.create()
-  .withSubject('customer-service')
-  .withEmail('admin@test.com')
+const user = UserBuilder.create()
+  .withUsername('admin@test.com')
+  .withRole('admin')
   .build();
 ```
 
@@ -151,12 +145,12 @@ const products = ProductBuilder.create().buildMany(5, (i) => ({
 
 ## Faker.js integration
 
-Builders use [Faker.js](https://fakerjs.dev/) to generate realistic test data by default. This means every call to `ContactBuilder.create().build()` produces unique, realistic values — no more `test@example.com` everywhere:
+Builders use [Faker.js](https://fakerjs.dev/) to generate realistic test data by default. This means every call to `UserBuilder.create().build()` produces unique, realistic values — no more `test@example.com` everywhere:
 
 ```typescript
-const contact = ContactBuilder.create().build();
-// { firstName: 'Alexis', lastName: 'Mertz', email: 'alexis.mertz@yahoo.com',
-//   subject: 'customer-service', message: 'Lorem ipsum dolor sit amet...' }
+const user = UserBuilder.create().build();
+// { username: 'alexis.mertz@yahoo.com', password: 'xK9#mP2$vL',
+//   displayName: 'Alexis Mertz', role: 'user' }
 ```
 
 Override only the fields that matter for your test, and let Faker handle the rest.

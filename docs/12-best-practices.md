@@ -8,21 +8,20 @@ A test should read like a requirement document. Anyone — QA, product, dev — 
 
 ```typescript
 // Good — reads like a spec
-test('user can submit a contact form', async ({ contactPage }) => {
-  await contactPage.navigate();
-  await contactPage.fillForm({ firstName: 'Jane', lastName: 'Doe', email: 'jane@example.com' });
-  await contactPage.submitForm();
-  await contactPage.expectSuccessMessage();
+test('user can log in with valid credentials', async ({ loginPage }) => {
+  await loginPage.navigate();
+  await loginPage.fillCredentials({ username: 'jane@example.com', password: 'secure123' });
+  await loginPage.submit();
+  await loginPage.expectDashboard();
 });
 
 // Bad — implementation details
-test('submit contact', async ({ page }) => {
-  await page.goto('/contact');
-  await page.fill('#first_name', 'Jane');
-  await page.fill('#last_name', 'Doe');
-  await page.fill('#email', 'jane@example.com');
+test('login', async ({ page }) => {
+  await page.goto('/login');
+  await page.fill('#username', 'jane@example.com');
+  await page.fill('#password', 'secure123');
   await page.click('input[type="submit"]');
-  await page.waitForSelector('.alert-success');
+  await page.waitForSelector('.dashboard');
 });
 ```
 
@@ -38,11 +37,11 @@ Each test verifies one behavior. If you need to describe what the test does with
 
 ```typescript
 // Good — one concept
-test('should display error for missing required fields', async ({ contactPage }) => { /* ... */ });
-test('should show success message after submission', async ({ contactPage }) => { /* ... */ });
+test('should display error for missing required fields', async ({ loginPage }) => { /* ... */ });
+test('should show success message after login', async ({ loginPage }) => { /* ... */ });
 
 // Bad — two concepts
-test('should show error for missing fields and success for valid submission', async ({ contactPage }) => {
+test('should show error for missing fields and success for valid login', async ({ loginPage }) => {
   // ...this is two tests pretending to be one
 });
 ```
@@ -68,8 +67,8 @@ test('can edit a user', async ({ usersPage, testUser }) => {
 Tags control which tests run in which context. Every `test.describe` should have at least one tag.
 
 ```typescript
-test.describe('Contact @smoke', () => { /* ... */ });
-test.describe('Contact Form @regression', () => { /* ... */ });
+test.describe('Login @smoke', () => { /* ... */ });
+test.describe('Login Form @regression', () => { /* ... */ });
 test.describe('Admin Panel @critical @regression', () => { /* ... */ });
 ```
 
@@ -77,7 +76,7 @@ test.describe('Admin Panel @critical @regression', () => { /* ... */ });
 
 | Tag | Purpose | When to use |
 |-----|---------|------------|
-| `@smoke` | Critical happy paths | Contact form, core navigation, main feature |
+| `@smoke` | Critical happy paths | Login flow, core navigation, main feature |
 | `@regression` | Full feature coverage | All non-smoke tests |
 | `@critical` | Business-critical flows | Payments, data deletion, security |
 | `@visual` | Visual regression | Screenshot comparison tests |
@@ -102,7 +101,7 @@ npx playwright test --grep-invert @visual   # everything except visual
 | Component | `kebab-case.component.ts` | `date-picker.component.ts` |
 | Test spec | `kebab-case.spec.ts` | `user-profile.spec.ts` |
 | API client | `kebab-case.api.ts` | `user.api.ts` |
-| Builder | `kebab-case.builder.ts` | `contact.builder.ts` |
+| Builder | `kebab-case.builder.ts` | `user.builder.ts` |
 
 ### Classes
 
@@ -111,7 +110,7 @@ npx playwright test --grep-invert @visual   # everything except visual
 | Page | `PascalCase + Page` | `UserProfilePage` |
 | Component | `PascalCase + Component` | `DatePickerComponent` |
 | API | `PascalCase + API` | `UserAPI` |
-| Builder | `PascalCase + Builder` | `ContactBuilder` |
+| Builder | `PascalCase + Builder` | `UserBuilder` |
 
 ### Methods
 
@@ -127,8 +126,8 @@ Use the format: `should <expected behavior>` or `<subject> can <action>`.
 
 ```typescript
 test('should display error for missing required fields');
-test('user can submit a contact form');
-test('should show success message after submission');
+test('user can log in with valid credentials');
+test('should show dashboard after login');
 ```
 
 ## Common mistakes
@@ -153,13 +152,13 @@ await page.waitForResponse('/api/data');
 ```typescript
 // Bad — hides real failures
 try {
-  await contactPage.expectSuccessMessage();
+  await loginPage.expectDashboard();
 } catch {
-  console.log('Message not ready, skipping...');
+  console.log('Dashboard not ready, skipping...');
 }
 
 // Good — let it fail, investigate why
-await contactPage.expectSuccessMessage();
+await loginPage.expectDashboard();
 ```
 
 ### Sharing state between tests
@@ -187,12 +186,12 @@ If a Page Object exceeds ~200 lines, it's doing too much. Extract reusable parts
 // Before: 300-line page object with inline form/modal/toast logic
 
 // After: compose with Components
-readonly form = new FormComponent(page, page.getByTestId('contact-form'));
+readonly form = new FormComponent(page, page.getByTestId('login-form'));
 readonly confirmModal = new ModalComponent(page, page.getByTestId('confirm-modal'));
 readonly toast = new ToastComponent(page, page.getByTestId('toast'));
 ```
 
-> [!note] The scaffolded `ContactPage` is intentionally simple — it doesn't need component extraction. This pattern becomes valuable as your pages grow more complex.
+> [!note] The scaffolded `LoginPage` is intentionally simple — it doesn't need component extraction. This pattern becomes valuable as your pages grow more complex.
 
 ## Checklist before commit
 
