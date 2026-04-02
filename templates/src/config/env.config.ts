@@ -14,8 +14,8 @@ interface EnvironmentConfig {
 
 const environments: Record<Environment, EnvironmentConfig> = {
   local: {
-    baseUrl: "https://practicesoftwaretesting.com",
-    apiUrl: "https://practicesoftwaretesting.com/api",
+    baseUrl: "https://your-app.com",
+    apiUrl: "https://your-app.com/api",
     timeout: 15_000,
     retries: 0,
     workers: 4,

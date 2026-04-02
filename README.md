@@ -51,7 +51,7 @@ The CLI scaffolds the project, installs dependencies, downloads Playwright brows
   ⚡ histrion create — scaffold a production-grade Playwright project
 
   - Project name: my-e2e-tests
-  - Application base URL: https://practicesoftwaretesting.com
+  - Application base URL: https://your-app.com
   - Include starter template files? Yes
   - Install Faker.js? Yes
   - Include visual regression tests? Yes

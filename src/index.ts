@@ -130,7 +130,7 @@ async function main(): Promise<void> {
         type: "text",
         name: "baseUrl",
         message: "Application base URL",
-        initial: "https://practicesoftwaretesting.com",
+        initial: "https://your-app.com",
       },
       {
         type: "confirm",
@@ -403,7 +403,7 @@ function copyDir(src: string, dest: string, config: ProjectConfig): void {
       let content = fs.readFileSync(srcPath, "utf-8");
       content = content.replace(/\{\{projectName\}\}/g, config.projectName);
       content = content.replace(
-        /https:\/\/practicesoftwaretesting\.com/g,
+        /https:\/\/your-app\.com/g,
         config.baseUrl,
       );
       fs.writeFileSync(destPath, content);
