@@ -71,6 +71,8 @@ function printUsage(): void {
   console.log();
   console.log(kleur.bold("  Options:\n"));
   console.log("    scan --test-id-attr <attr>   Custom test ID attribute (default: data-testid)");
+  console.log("    scan --headed                Open browser visibly — log in, then press Enter to scan");
+  console.log("    scan --auth <file>           Use saved auth state (e.g. auth/admin.json)");
   console.log();
   console.log(kleur.bold("  Examples:\n"));
   console.log(kleur.dim("    npx histrion create"));
@@ -78,6 +80,8 @@ function printUsage(): void {
   console.log(kleur.dim("    npx histrion create .              # scaffold in current directory"));
   console.log(kleur.dim("    npx histrion scan https://myapp.com/login"));
   console.log(kleur.dim("    npx histrion scan https://myapp.com/login --test-id-attr data-cy"));
+  console.log(kleur.dim("    npx histrion scan https://myapp.com/settings --headed"));
+  console.log(kleur.dim("    npx histrion scan https://myapp.com/settings --auth auth/admin.json"));
   console.log();
 }
 
