@@ -1,6 +1,6 @@
 {
   "name": "histrion",
-  "version": "4.2.1",
+  "version": "4.3.0",
   "description": "Scaffold a production-grade Playwright + TypeScript project with Page Object Model architecture",
   "bin": {
     "histrion": "./dist/index.js"

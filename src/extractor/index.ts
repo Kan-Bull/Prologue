@@ -21,6 +21,12 @@ const UTILITY_CLASS_PATTERNS = [
   /^(active|disabled|focus|hover|selected|open|closed|collapsed)/,
 ];
 
+/** HTML void elements that never have closing tags. */
+const VOID_ELEMENTS = new Set([
+  "area", "base", "br", "col", "embed", "hr", "img", "input",
+  "link", "meta", "param", "source", "track", "wbr",
+]);
+
 function isUtilityClass(cls: string): boolean {
   return UTILITY_CLASS_PATTERNS.some((p) => p.test(cls));
 }
@@ -32,44 +38,26 @@ interface LocatorCandidate {
 }
 
 // ──────────────────────────────────────────────
-//  HTML Parsing (regex-based, single element)
+//  HTML Parsing
 // ──────────────────────────────────────────────
 
 /**
- * Parse a single HTML element string into an ElementInfo.
- * Handles self-closing tags and elements with content.
+ * Parse attributes from an opening tag's attribute string.
  */
-export function parseHtmlElement(html: string): ElementInfo {
-  const trimmed = html.trim();
-
-  // Extract tag name
-  const tagMatch = trimmed.match(/^<(\w+)[\s>/]/);
-  const tagName = tagMatch ? tagMatch[1].toLowerCase() : "div";
-
-  // Extract all attributes from the opening tag
-  const openTagMatch = trimmed.match(/^<\w+([^>]*)>/);
-  const attrString = openTagMatch ? openTagMatch[1] : "";
-
+function parseAttributes(attrString: string): Record<string, string> {
   const attrs: Record<string, string> = {};
   const attrRegex = /([\w-]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'))?/g;
   let match: RegExpExecArray | null;
   while ((match = attrRegex.exec(attrString)) !== null) {
-    const name = match[1];
-    const value = match[2] ?? match[3] ?? "";
-    attrs[name] = value;
+    attrs[match[1]] = match[2] ?? match[3] ?? "";
   }
+  return attrs;
+}
 
-  // Extract visible text: content between opening and closing tag, strip inner HTML tags
-  let visibleText: string | null = null;
-  const contentMatch = trimmed.match(/^<\w+[^>]*>([\s\S]*?)<\/\w+>$/);
-  if (contentMatch) {
-    const raw = contentMatch[1].replace(/<[^>]*>/g, "").trim();
-    if (raw.length > 0) {
-      visibleText = raw.length > 50 ? raw.slice(0, 47) + "..." : raw;
-    }
-  }
-
-  // Find test ID across common attributes
+/**
+ * Build an ElementInfo from a tag name, attributes, and optional text content.
+ */
+function buildElementInfo(tagName: string, attrs: Record<string, string>, text: string | null): ElementInfo {
   const testIdAttrs = ["data-testid", "data-test", "data-cy", "data-qa"];
   let testId: string | null = null;
   for (const attr of testIdAttrs) {
@@ -79,10 +67,17 @@ export function parseHtmlElement(html: string): ElementInfo {
     }
   }
 
-  // Extract classes
   const classes = attrs.class
     ? attrs.class.split(/\s+/).filter(Boolean)
     : [];
+
+  let visibleText: string | null = null;
+  if (text) {
+    const cleaned = text.trim();
+    if (cleaned.length > 0) {
+      visibleText = cleaned.length > 50 ? cleaned.slice(0, 47) + "..." : cleaned;
+    }
+  }
 
   return {
     tagName,
@@ -95,9 +90,85 @@ export function parseHtmlElement(html: string): ElementInfo {
     role: attrs.role || null,
     testId,
     visibleText,
-    associatedLabel: null, // not available from a single element
+    associatedLabel: null,
     classes,
   };
+}
+
+/**
+ * Check if an element has meaningful attributes worth showing locators for.
+ */
+function hasMeaningfulAttributes(el: ElementInfo): boolean {
+  return !!(
+    el.testId ||
+    el.id ||
+    el.role ||
+    el.ariaLabel ||
+    el.ariaLabelledBy ||
+    el.name ||
+    el.placeholder ||
+    el.classes.some((c) => !isUtilityClass(c))
+  );
+}
+
+/**
+ * Parse a single HTML element string into an ElementInfo.
+ * Handles self-closing tags and elements with content.
+ */
+export function parseHtmlElement(html: string): ElementInfo {
+  const trimmed = html.trim();
+
+  const tagMatch = trimmed.match(/^<(\w+)[\s>/]/);
+  const tagName = tagMatch ? tagMatch[1].toLowerCase() : "div";
+
+  const openTagMatch = trimmed.match(/^<\w+([^>]*)>/);
+  const attrString = openTagMatch ? openTagMatch[1] : "";
+  const attrs = parseAttributes(attrString);
+
+  // Extract visible text: strip all inner HTML tags
+  let text: string | null = null;
+  const contentMatch = trimmed.match(/^<\w+[^>]*>([\s\S]*?)<\/\w+>$/);
+  if (contentMatch) {
+    text = contentMatch[1].replace(/<[^>]*>/g, "").trim() || null;
+  }
+
+  return buildElementInfo(tagName, attrs, text);
+}
+
+/**
+ * Parse ALL elements from an HTML string — root + children.
+ * Returns an array of ElementInfo, one per distinct element found.
+ */
+export function parseAllElements(html: string): ElementInfo[] {
+  const elements: ElementInfo[] = [];
+  const trimmed = html.trim();
+
+  // Match every opening tag with its attributes
+  const tagRegex = /<(\w+)((?:\s+[\w-]+(?:\s*=\s*(?:"[^"]*"|'[^']*'))?)*)\s*\/?>/g;
+  let tagMatch: RegExpExecArray | null;
+
+  while ((tagMatch = tagRegex.exec(trimmed)) !== null) {
+    const tagName = tagMatch[1].toLowerCase();
+    const attrString = tagMatch[2] || "";
+    const attrs = parseAttributes(attrString);
+
+    // Find visible text for this element
+    let text: string | null = null;
+    if (!VOID_ELEMENTS.has(tagName) && !tagMatch[0].endsWith("/>")) {
+      // Find content between this opening tag and its closing tag
+      const afterTag = trimmed.slice(tagMatch.index + tagMatch[0].length);
+      const closePattern = new RegExp(`^([\\s\\S]*?)</${tagName}>`);
+      const closeMatch = afterTag.match(closePattern);
+      if (closeMatch) {
+        // Strip child tags to get only direct text content
+        text = closeMatch[1].replace(/<[^>]*>/g, "").trim() || null;
+      }
+    }
+
+    elements.push(buildElementInfo(tagName, attrs, text));
+  }
+
+  return elements;
 }
 
 // ──────────────────────────────────────────────
@@ -206,9 +277,9 @@ function generateAllLocators(el: ElementInfo): LocatorCandidate[] {
 // ──────────────────────────────────────────────
 
 function stabilityIcon(score: number): string {
-  if (score >= 4) return kleur.green("\u2B24");  // green circle
-  if (score === 3) return kleur.yellow("\u2B24"); // yellow circle
-  return kleur.red("\u2B24");                     // red circle
+  if (score >= 4) return kleur.green("\u2B24");
+  if (score === 3) return kleur.yellow("\u2B24");
+  return kleur.red("\u2B24");
 }
 
 function truncate(str: string, max: number): string {
@@ -216,26 +287,19 @@ function truncate(str: string, max: number): string {
 }
 
 /**
- * Extract locators from a raw HTML element string and display them.
+ * Print a locator table for one element.
  */
-export function extract(html: string): void {
-  const el = parseHtmlElement(html);
-  const candidates = generateAllLocators(el);
+function printElementSection(el: ElementInfo, candidates: LocatorCandidate[], label: string): void {
   const best = rankLocator(el);
   const varName = suggestVariableName(el);
 
-  // Header
-  console.log();
-  console.log(kleur.bold().cyan("  \uD83D\uDD0D Analyzing element..."));
-  console.log();
-
   // Element summary
   const textHint = el.visibleText ? ` with text "${truncate(el.visibleText, 40)}"` : "";
-  console.log(`  Element: ${kleur.bold(`<${el.tagName}>`)}${kleur.dim(textHint)}`);
+  console.log(`  ${kleur.bold(label)}: ${kleur.bold(`<${el.tagName}>`)}${kleur.dim(textHint)}`);
   console.log();
 
   if (candidates.length === 0) {
-    console.log(kleur.yellow("  \u26A0 No locator strategies found for this element.\n"));
+    console.log(kleur.yellow("    No locator strategies found.\n"));
     return;
   }
 
@@ -245,8 +309,8 @@ export function extract(html: string): void {
   const locW = 46;
   const stabW = 9;
   const totalW = numW + stratW + locW + stabW;
-
   const line = "\u2500".repeat(totalW);
+
   console.log(`  \u250C${"\u2500".repeat(totalW)}\u2510`);
   console.log(
     `  \u2502` +
@@ -271,12 +335,45 @@ export function extract(html: string): void {
   console.log(`  \u2514${line}\u2518`);
   console.log();
 
-  // Suggested variable name
   console.log(`  ${kleur.bold("Variable name:")} ${kleur.cyan(varName)}`);
-  console.log();
-
-  // Copy-paste ready line
   console.log(`  ${kleur.bold("Copy-paste ready:")}`);
   console.log(kleur.green(`    private readonly ${varName} = ${best.code};`));
   console.log();
+}
+
+/**
+ * Extract locators from a raw HTML string and display them.
+ * Analyzes the root element and all meaningful child elements.
+ */
+export function extract(html: string): void {
+  const allElements = parseAllElements(html);
+
+  if (allElements.length === 0) {
+    console.log(kleur.yellow("\n  No HTML elements found.\n"));
+    return;
+  }
+
+  console.log();
+  console.log(kleur.bold().cyan("  \uD83D\uDD0D Analyzing element..."));
+  console.log();
+
+  // Root element always gets displayed
+  const root = allElements[0];
+  const rootCandidates = generateAllLocators(root);
+  printElementSection(root, rootCandidates, "Root");
+
+  // Child elements: only show those with meaningful attributes
+  const children = allElements.slice(1).filter(hasMeaningfulAttributes);
+
+  if (children.length > 0) {
+    console.log(kleur.dim("  ─".repeat(38)));
+    console.log();
+    console.log(kleur.bold(`  ${children.length} child element${children.length > 1 ? "s" : ""} found:`));
+    console.log();
+
+    for (const child of children) {
+      const candidates = generateAllLocators(child);
+      printElementSection(child, candidates, "Child");
+    }
+  }
 }
