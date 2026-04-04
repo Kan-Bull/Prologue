@@ -1,3 +1,4 @@
+import * as readline from "node:readline";
 import kleur from "kleur";
 import type { ElementInfo } from "../scanner/page-analyzer";
 import {
@@ -286,24 +287,33 @@ function truncate(str: string, max: number): string {
   return str.length > max ? str.slice(0, max - 3) + "..." : str;
 }
 
+/** One entry in the global flat list of all locators across all elements. */
+interface GlobalEntry {
+  el: ElementInfo;
+  candidate: LocatorCandidate;
+  varName: string;
+}
+
 /**
  * Print a locator table for one element.
+ * Uses global numbering starting at `startIndex`.
+ * Returns the number of rows printed.
  */
-function printElementSection(el: ElementInfo, candidates: LocatorCandidate[], label: string): void {
-  const best = rankLocator(el);
-  const varName = suggestVariableName(el);
-
-  // Element summary
+function printElementTable(
+  label: string,
+  el: ElementInfo,
+  candidates: LocatorCandidate[],
+  startIndex: number,
+): number {
   const textHint = el.visibleText ? ` with text "${truncate(el.visibleText, 40)}"` : "";
   console.log(`  ${kleur.bold(label)}: ${kleur.bold(`<${el.tagName}>`)}${kleur.dim(textHint)}`);
   console.log();
 
   if (candidates.length === 0) {
     console.log(kleur.yellow("    No locator strategies found.\n"));
-    return;
+    return 0;
   }
 
-  // Table
   const numW = 4;
   const stratW = 18;
   const locW = 46;
@@ -311,7 +321,7 @@ function printElementSection(el: ElementInfo, candidates: LocatorCandidate[], la
   const totalW = numW + stratW + locW + stabW;
   const line = "\u2500".repeat(totalW);
 
-  console.log(`  \u250C${"\u2500".repeat(totalW)}\u2510`);
+  console.log(`  \u250C${line}\u2510`);
   console.log(
     `  \u2502` +
     kleur.bold(" #".padEnd(numW)) +
@@ -324,7 +334,7 @@ function printElementSection(el: ElementInfo, candidates: LocatorCandidate[], la
 
   for (let i = 0; i < candidates.length; i++) {
     const c = candidates[i];
-    const num = ` ${i + 1}`.padEnd(numW);
+    const num = ` ${startIndex + i}`.padEnd(numW);
     const strat = c.strategy.padEnd(stratW);
     const loc = truncate(c.code, locW - 2).padEnd(locW);
     const icon = stabilityIcon(c.score);
@@ -335,17 +345,32 @@ function printElementSection(el: ElementInfo, candidates: LocatorCandidate[], la
   console.log(`  \u2514${line}\u2518`);
   console.log();
 
-  console.log(`  ${kleur.bold("Variable name:")} ${kleur.cyan(varName)}`);
-  console.log(`  ${kleur.bold("Copy-paste ready:")}`);
-  console.log(kleur.green(`    private readonly ${varName} = ${best.code};`));
-  console.log();
+  return candidates.length;
+}
+
+function formatCopyPaste(varName: string, code: string): string {
+  return `private readonly ${varName} = this.page.${code};`;
+}
+
+function promptSelection(entries: GlobalEntry[]): Promise<number> {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  return new Promise((resolve) => {
+    rl.question(`  ${kleur.bold("Select locator")} [${kleur.cyan("1")}]: `, (answer) => {
+      rl.close();
+      const n = parseInt(answer, 10);
+      if (!answer.trim()) return resolve(0);
+      if (isNaN(n) || n < 1 || n > entries.length) return resolve(0);
+      resolve(n - 1);
+    });
+  });
 }
 
 /**
  * Extract locators from a raw HTML string and display them.
  * Analyzes the root element and all meaningful child elements.
+ * Interactive: lets the user pick which locator to copy.
  */
-export function extract(html: string): void {
+export async function extract(html: string): Promise<void> {
   const allElements = parseAllElements(html);
 
   if (allElements.length === 0) {
@@ -357,12 +382,22 @@ export function extract(html: string): void {
   console.log(kleur.bold().cyan("  \uD83D\uDD0D Analyzing element..."));
   console.log();
 
-  // Root element always gets displayed
+  // Collect all entries with global numbering
+  const entries: GlobalEntry[] = [];
   const root = allElements[0];
   const rootCandidates = generateAllLocators(root);
-  printElementSection(root, rootCandidates, "Root");
+  const rootVarName = suggestVariableName(root);
 
-  // Child elements: only show those with meaningful attributes
+  for (const c of rootCandidates) {
+    entries.push({ el: root, candidate: c, varName: rootVarName });
+  }
+
+  // Print root table
+  let globalIndex = 1;
+  const rootCount = printElementTable("Root", root, rootCandidates, globalIndex);
+  globalIndex += rootCount;
+
+  // Child elements
   const children = allElements.slice(1).filter(hasMeaningfulAttributes);
 
   if (children.length > 0) {
@@ -373,7 +408,31 @@ export function extract(html: string): void {
 
     for (const child of children) {
       const candidates = generateAllLocators(child);
-      printElementSection(child, candidates, "Child");
+      const varName = suggestVariableName(child);
+
+      for (const c of candidates) {
+        entries.push({ el: child, candidate: c, varName });
+      }
+
+      const count = printElementTable("Child", child, candidates, globalIndex);
+      globalIndex += count;
     }
   }
+
+  if (entries.length === 0) return;
+
+  // Interactive selection
+  const isInteractive = process.stdin.isTTY && process.stdout.isTTY;
+  let selected = 0; // default: first (best) locator
+
+  if (isInteractive) {
+    selected = await promptSelection(entries);
+  }
+
+  const entry = entries[selected];
+  const line = formatCopyPaste(entry.varName, entry.candidate.code);
+
+  console.log(`  ${kleur.bold("Copy-paste ready:")}`);
+  console.log(kleur.green(`    ${line}`));
+  console.log();
 }

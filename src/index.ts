@@ -114,7 +114,7 @@ async function main(): Promise<void> {
 
     // Priority 1: inline argument
     if (htmlArg) {
-      extract(htmlArg);
+      await extract(htmlArg);
       return;
     }
 
@@ -126,7 +126,7 @@ async function main(): Promise<void> {
       }
       const piped = Buffer.concat(chunks).toString("utf-8").trim();
       if (piped) {
-        extract(piped);
+        await extract(piped);
         return;
       }
     }
@@ -135,7 +135,7 @@ async function main(): Promise<void> {
     const clipboard = readClipboard();
     if (clipboard && clipboard.startsWith("<")) {
       console.log(kleur.dim("  (reading from clipboard)"));
-      extract(clipboard);
+      await extract(clipboard);
       return;
     }
 
