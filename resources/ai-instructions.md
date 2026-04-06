@@ -244,6 +244,35 @@ export class UserBuilder extends Builder<UserData> {
 
 Usage: `UserBuilder.create().withRole('admin').build()`
 
+## Recommended MCP Tools
+
+If your AI coding assistant supports MCP (Model Context Protocol), these tools significantly improve the testing workflow:
+
+### Context7 — Playwright Documentation
+
+Use Context7 to fetch up-to-date Playwright API documentation instead of relying on training data. This prevents outdated API usage and catches new features.
+
+**When to use:**
+- Writing or modifying locators (`getByRole`, `getByTestId`, `locator` options)
+- Using Playwright assertions (`expect(locator).toBeVisible()`, `toHaveText()`, etc.)
+- Configuring `playwright.config.ts` (retries, timeouts, reporters, projects)
+- Working with browser contexts, storage state, or authentication
+
+### Playwright MCP — Browser Automation
+
+Use Playwright MCP to interact with the application under test directly. This enables you to verify locators, debug failing tests, and discover page structure.
+
+**When to use:**
+- **Debugging a failing test:** navigate to the page, inspect the DOM, verify that locators resolve to the expected elements
+- **Writing a new Page Object:** navigate to the page, observe the interactive elements and their attributes, then write accurate locators
+- **Verifying locators work** before committing — especially after a UI change
+
+**Guidelines:**
+- Always navigate using `BASE_URL` from the project's environment config (`src/config/env.config.ts`)
+- For authenticated pages, use the project's `storageState` files in `auth/` if available
+- Do not hardcode locators you discover — follow the locator priority: `data-testid` > `id` > `getByRole` > `getByLabel` > CSS fallback
+- Every locator you find still goes through the Page Object — never put raw Playwright calls in tests
+
 ## Checklist Before Commit
 
 - [ ] Tests pass: `npm test`

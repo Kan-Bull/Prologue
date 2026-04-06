@@ -2,26 +2,11 @@ import * as fs from "node:fs";
 import * as readline from "node:readline";
 import { chromium } from "playwright";
 import kleur from "kleur";
+import { spinner } from "../utils/cli";
 import { analyzeElements } from "./page-analyzer";
 import { rankLocator } from "./locator-ranker";
 import type { RankedLocator } from "./locator-ranker";
 import { generatePageObject } from "./page-generator";
-
-const FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
-
-function spinner(message: string): { stop: (result: string) => void } {
-  let i = 0;
-  const id = setInterval(() => {
-    process.stdout.write(`\r  ${kleur.cyan(FRAMES[i++ % FRAMES.length])} ${message}`);
-  }, 80);
-
-  return {
-    stop(result: string) {
-      clearInterval(id);
-      process.stdout.write(`\r  ${result}\n`);
-    },
-  };
-}
 
 function printResultsTable(locators: RankedLocator[]): void {
   console.log();
